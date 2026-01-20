@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://character-wizard.app/schemas/character.schema.json",
+  "title": "Character",
+  "description": "A character created with Character Wizard",
+  "type": "object",
+  "required": ["id", "name", "race", "class", "level", "abilityScores", "createdAt", "updatedAt"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the character"
+    },
+    "name": {
+      "type": "string",
+      "description": "Character's name"
+    },
+    "race": {
+      "type": "string",
+      "description": "Character's race ID"
+    },
+    "class": {
+      "type": "string",
+      "description": "Character's class ID"
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20,
+      "description": "Character's level"
+    },
+    "background": {
+      "type": "string",
+      "description": "Character's background ID"
+    },
+    "abilityScores": {
+      "$ref": "#/$defs/abilityScores"
+    },
+    "hitPoints": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Current hit points"
+    },
+    "maxHitPoints": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Maximum hit points"
+    },
+    "armorClass": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Armor class"
+    },
+    "proficiencyBonus": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 6,
+      "description": "Proficiency bonus based on level"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of proficient skills"
+    },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of equipment items"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of features and traits"
+    },
+    "spells": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of known spells (optional)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Player notes about the character"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the character was created"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the character was last updated"
+    }
+  },
+  "$defs": {
+    "abilityScores": {
+      "type": "object",
+      "required": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"],
+      "properties": {
+        "strength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "description": "Strength score"
+        },
+        "dexterity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "description": "Dexterity score"
+        },
+        "constitution": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "description": "Constitution score"
+        },
+        "intelligence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "description": "Intelligence score"
+        },
+        "wisdom": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "description": "Wisdom score"
+        },
+        "charisma": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30,
+          "description": "Charisma score"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
