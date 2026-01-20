@@ -1,0 +1,514 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://character-wizard.example/schemas/modulepack.schema.json",
+  "title": "ModulePack",
+  "description": "Content module for the character wizard application",
+  "type": "object",
+  "required": ["manifest", "content"],
+  "properties": {
+    "manifest": {
+      "$ref": "#/$defs/moduleManifest"
+    },
+    "content": {
+      "$ref": "#/$defs/moduleContent"
+    }
+  },
+  "$defs": {
+    "moduleManifest": {
+      "type": "object",
+      "required": ["id", "name", "version", "description", "authors", "editions", "minAppVersion"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Unique module identifier (lowercase, alphanumeric, hyphens)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+",
+          "description": "Semantic version"
+        },
+        "description": {
+          "type": "string"
+        },
+        "authors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "editions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "minAppVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/moduleDependency"
+          }
+        },
+        "license": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "moduleDependency": {
+      "type": "object",
+      "required": ["moduleId", "minVersion"],
+      "properties": {
+        "moduleId": {
+          "type": "string"
+        },
+        "minVersion": {
+          "type": "string"
+        },
+        "maxVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "moduleContent": {
+      "type": "object",
+      "properties": {
+        "races": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/raceContent" }
+        },
+        "classes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/classContent" }
+        },
+        "backgrounds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/backgroundContent" }
+        },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/itemContent" }
+        },
+        "spells": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/spellContent" }
+        },
+        "feats": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/featContent" }
+        }
+      }
+    },
+    "contentBase": {
+      "type": "object",
+      "required": ["id", "name", "description", "source"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "source": { "type": "string" }
+      }
+    },
+    "abilityBonus": {
+      "type": "object",
+      "required": ["ability", "value"],
+      "properties": {
+        "ability": {
+          "type": "string",
+          "enum": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma", "choice"]
+        },
+        "value": {
+          "type": "integer"
+        }
+      }
+    },
+    "traitChoiceOption": {
+      "type": "object",
+      "required": ["id", "name", "description"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "raceTrait": {
+      "type": "object",
+      "required": ["id", "name", "description"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/traitChoiceOption" }
+        }
+      }
+    },
+    "subraceContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": ["abilityBonuses", "traits"],
+          "properties": {
+            "abilityBonuses": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/abilityBonus" }
+            },
+            "traits": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/raceTrait" }
+            }
+          }
+        }
+      ]
+    },
+    "raceContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": ["abilityBonuses", "size", "speed", "traits", "languages"],
+          "properties": {
+            "abilityBonuses": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/abilityBonus" }
+            },
+            "size": {
+              "type": "string",
+              "enum": ["tiny", "small", "medium", "large"]
+            },
+            "speed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "traits": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/raceTrait" }
+            },
+            "languages": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "subraces": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/subraceContent" }
+            }
+          }
+        }
+      ]
+    },
+    "hitDice": {
+      "type": "object",
+      "required": ["count", "sides"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 1 },
+        "sides": { "type": "integer", "enum": [6, 8, 10, 12] }
+      }
+    },
+    "classFeature": {
+      "type": "object",
+      "required": ["id", "name", "description", "level"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "level": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/traitChoiceOption" }
+        }
+      }
+    },
+    "spellcastingInfo": {
+      "type": "object",
+      "required": ["ability", "type", "spellList"],
+      "properties": {
+        "ability": {
+          "type": "string",
+          "enum": ["intelligence", "wisdom", "charisma"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["full", "half", "third", "pact", "none"]
+        },
+        "spellList": { "type": "string" }
+      }
+    },
+    "startingEquipmentChoice": {
+      "type": "object",
+      "required": ["items", "description"],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["itemId", "quantity"],
+            "properties": {
+              "itemId": { "type": "string" },
+              "quantity": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "description": { "type": "string" }
+      }
+    },
+    "startingEquipmentOption": {
+      "type": "object",
+      "required": ["choose", "from"],
+      "properties": {
+        "choose": { "type": "integer", "minimum": 1 },
+        "from": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/startingEquipmentChoice" }
+        }
+      }
+    },
+    "subclassContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": ["features"],
+          "properties": {
+            "features": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/classFeature" }
+            },
+            "spellcasting": { "$ref": "#/$defs/spellcastingInfo" }
+          }
+        }
+      ]
+    },
+    "classContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": [
+            "hitDice", "primaryAbility", "savingThrows",
+            "armorProficiencies", "weaponProficiencies", "toolProficiencies",
+            "skillChoices", "startingEquipment", "features", "subclassLevel"
+          ],
+          "properties": {
+            "hitDice": { "$ref": "#/$defs/hitDice" },
+            "primaryAbility": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "savingThrows": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "armorProficiencies": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "weaponProficiencies": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "toolProficiencies": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "skillChoices": {
+              "type": "object",
+              "required": ["count", "from"],
+              "properties": {
+                "count": { "type": "integer", "minimum": 0 },
+                "from": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            },
+            "startingEquipment": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/startingEquipmentOption" }
+            },
+            "features": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/classFeature" }
+            },
+            "spellcasting": { "$ref": "#/$defs/spellcastingInfo" },
+            "subclasses": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/subclassContent" }
+            },
+            "subclassLevel": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            }
+          }
+        }
+      ]
+    },
+    "backgroundContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": ["skillProficiencies", "toolProficiencies", "languages", "equipment", "feature"],
+          "properties": {
+            "skillProficiencies": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "toolProficiencies": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "languages": {
+              "type": "object",
+              "required": ["count"],
+              "properties": {
+                "count": { "type": "integer", "minimum": 0 },
+                "from": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            },
+            "equipment": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["itemId", "quantity"],
+                "properties": {
+                  "itemId": { "type": "string" },
+                  "quantity": { "type": "integer", "minimum": 1 }
+                }
+              }
+            },
+            "feature": {
+              "type": "object",
+              "required": ["name", "description"],
+              "properties": {
+                "name": { "type": "string" },
+                "description": { "type": "string" }
+              }
+            },
+            "suggestedCharacteristics": {
+              "type": "object",
+              "properties": {
+                "personalityTraits": { "type": "array", "items": { "type": "string" } },
+                "ideals": { "type": "array", "items": { "type": "string" } },
+                "bonds": { "type": "array", "items": { "type": "string" } },
+                "flaws": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "weaponProperties": {
+      "type": "object",
+      "required": ["type", "range", "damage", "damageType", "properties"],
+      "properties": {
+        "type": { "type": "string", "enum": ["simple", "martial"] },
+        "range": { "type": "string", "enum": ["melee", "ranged"] },
+        "damage": { "type": "string" },
+        "damageType": { "type": "string" },
+        "properties": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "armorProperties": {
+      "type": "object",
+      "required": ["type", "baseAC", "stealthDisadvantage"],
+      "properties": {
+        "type": { "type": "string", "enum": ["light", "medium", "heavy", "shield"] },
+        "baseAC": { "type": "integer" },
+        "maxDexBonus": { "type": "integer" },
+        "strengthRequirement": { "type": "integer" },
+        "stealthDisadvantage": { "type": "boolean" }
+      }
+    },
+    "itemContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": ["category", "cost", "weight"],
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": ["weapon", "armor", "shield", "adventuring-gear", "tool", "mount", "vehicle", "trade-good", "treasure"]
+            },
+            "cost": {
+              "type": "object",
+              "required": ["amount", "currency"],
+              "properties": {
+                "amount": { "type": "number", "minimum": 0 },
+                "currency": { "type": "string", "enum": ["cp", "sp", "ep", "gp", "pp"] }
+              }
+            },
+            "weight": { "type": "number", "minimum": 0 },
+            "weapon": { "$ref": "#/$defs/weaponProperties" },
+            "armor": { "$ref": "#/$defs/armorProperties" }
+          }
+        }
+      ]
+    },
+    "spellContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": ["level", "school", "castingTime", "range", "components", "duration", "concentration", "ritual", "classes"],
+          "properties": {
+            "level": { "type": "integer", "minimum": 0, "maximum": 9 },
+            "school": { "type": "string" },
+            "castingTime": { "type": "string" },
+            "range": { "type": "string" },
+            "components": {
+              "type": "object",
+              "required": ["verbal", "somatic", "material"],
+              "properties": {
+                "verbal": { "type": "boolean" },
+                "somatic": { "type": "boolean" },
+                "material": { "type": "boolean" },
+                "materialDescription": { "type": "string" }
+              }
+            },
+            "duration": { "type": "string" },
+            "concentration": { "type": "boolean" },
+            "ritual": { "type": "boolean" },
+            "classes": { "type": "array", "items": { "type": "string" } },
+            "higherLevels": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "featContent": {
+      "allOf": [
+        { "$ref": "#/$defs/contentBase" },
+        {
+          "type": "object",
+          "required": ["benefits"],
+          "properties": {
+            "prerequisite": { "type": "string" },
+            "abilityScoreIncrease": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/abilityBonus" }
+            },
+            "benefits": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
