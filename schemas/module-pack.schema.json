@@ -2,207 +2,489 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://character-wizard.app/schemas/module-pack.schema.json",
   "title": "Module Pack",
-  "description": "A module pack containing races, classes, backgrounds, and other content",
+  "description": "A module pack containing races, classes, backgrounds, and other content for Character Wizard",
   "type": "object",
-  "required": ["id", "name", "version", "description"],
+  "required": ["manifest", "content"],
   "properties": {
-    "id": {
-      "type": "string",
-      "pattern": "^[a-z0-9-]+$",
-      "description": "Unique identifier for the module pack (lowercase, hyphens allowed)"
+    "manifest": {
+      "$ref": "#/$defs/manifest"
     },
-    "name": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Display name for the module pack"
-    },
-    "version": {
-      "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$",
-      "description": "Semantic version (e.g., 1.0.0)"
-    },
-    "description": {
-      "type": "string",
-      "description": "Brief description of the module pack contents"
-    },
-    "author": {
-      "type": "string",
-      "description": "Author or creator of the module pack"
-    },
-    "races": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/race"
-      },
-      "description": "Available races"
-    },
-    "classes": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/class"
-      },
-      "description": "Available classes"
-    },
-    "backgrounds": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/background"
-      },
-      "description": "Available backgrounds"
-    },
-    "spells": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/spell"
-      },
-      "description": "Available spells"
-    },
-    "equipment": {
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/equipment"
-      },
-      "description": "Available equipment"
+    "content": {
+      "$ref": "#/$defs/content"
     }
   },
   "$defs": {
-    "race": {
+    "manifest": {
       "type": "object",
-      "required": ["id", "name", "description", "abilityBonuses", "traits", "speed", "languages"],
+      "required": ["id", "name", "version", "schemaVersion", "description"],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^[a-z0-9-]+$",
-          "description": "Unique identifier for the race"
+          "description": "Unique identifier for the module pack (lowercase, hyphens allowed)"
         },
         "name": {
           "type": "string",
-          "description": "Display name for the race"
+          "minLength": 1,
+          "description": "Display name for the module pack"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version (e.g., 1.0.0)"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Schema version for pack migrations"
         },
         "description": {
           "type": "string",
-          "description": "Brief description of the race"
+          "description": "Brief description of the module pack contents"
         },
-        "abilityBonuses": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "integer"
+        "author": {
+          "type": "string",
+          "description": "Author or creator of the module pack"
+        },
+        "license": {
+          "type": "string",
+          "description": "License under which content is provided"
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL for more information"
+        },
+        "edition": {
+          "type": "string",
+          "enum": ["5e", "5e-2024", "custom"],
+          "description": "Game edition this pack is designed for"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dependency"
           },
-          "description": "Ability score bonuses (e.g., {\"dexterity\": 2})"
+          "description": "Other packs this pack depends on"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Tags for categorization and search"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dependency": {
+      "type": "object",
+      "required": ["moduleId", "minVersion"],
+      "properties": {
+        "moduleId": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "minVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "content": {
+      "type": "object",
+      "properties": {
+        "races": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/race" },
+          "description": "Available races/species"
+        },
+        "subraces": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/subrace" },
+          "description": "Subraces that extend base races"
+        },
+        "classes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/class" },
+          "description": "Available classes"
+        },
+        "subclasses": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/subclass" },
+          "description": "Subclasses for base classes"
+        },
+        "backgrounds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/background" },
+          "description": "Available backgrounds"
+        },
+        "feats": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/feat" },
+          "description": "Available feats"
+        },
+        "spells": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/spell" },
+          "description": "Available spells"
+        },
+        "equipment": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/equipment" },
+          "description": "Available equipment"
         },
         "traits": {
           "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Racial traits"
+          "items": { "$ref": "#/$defs/trait" },
+          "description": "Reusable traits referenced by races/classes"
+        }
+      },
+      "additionalProperties": false
+    },
+    "race": {
+      "type": "object",
+      "required": ["id", "name", "description", "traits", "speed", "languages"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "abilityBonuses": {
+          "$ref": "#/$defs/abilityBonuses"
+        },
+        "abilityBonusChoice": {
+          "$ref": "#/$defs/abilityBonusChoice",
+          "description": "For races with flexible ability score increases"
+        },
+        "size": {
+          "type": "string",
+          "enum": ["Tiny", "Small", "Medium", "Large"]
         },
         "speed": {
           "type": "integer",
-          "minimum": 0,
-          "description": "Base walking speed in feet"
+          "minimum": 0
+        },
+        "traits": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Trait IDs or inline trait descriptions"
         },
         "languages": {
           "type": "array",
+          "items": { "type": "string" }
+        },
+        "languageChoice": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of additional languages to choose"
+        },
+        "proficiencies": {
+          "$ref": "#/$defs/grantedProficiencies"
+        },
+        "hasSubraces": {
+          "type": "boolean",
+          "description": "Whether this race has subraces"
+        }
+      },
+      "additionalProperties": false
+    },
+    "subrace": {
+      "type": "object",
+      "required": ["id", "name", "parentRaceId"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": { "type": "string" },
+        "parentRaceId": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "description": { "type": "string" },
+        "abilityBonuses": {
+          "$ref": "#/$defs/abilityBonuses"
+        },
+        "traits": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "proficiencies": {
+          "$ref": "#/$defs/grantedProficiencies"
+        }
+      },
+      "additionalProperties": false
+    },
+    "abilityBonuses": {
+      "type": "object",
+      "properties": {
+        "strength": { "type": "integer" },
+        "dexterity": { "type": "integer" },
+        "constitution": { "type": "integer" },
+        "intelligence": { "type": "integer" },
+        "wisdom": { "type": "integer" },
+        "charisma": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "abilityBonusChoice": {
+      "type": "object",
+      "required": ["count", "amount"],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of abilities to choose"
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Bonus amount per chosen ability"
+        },
+        "options": {
+          "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "enum": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]
           },
-          "description": "Languages known"
+          "description": "Allowed abilities (all if not specified)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "grantedProficiencies": {
+      "type": "object",
+      "properties": {
+        "skills": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "skillChoices": {
+          "$ref": "#/$defs/proficiencyChoice"
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "toolChoices": {
+          "$ref": "#/$defs/proficiencyChoice"
+        },
+        "weapons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "armor": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "proficiencyChoice": {
+      "type": "object",
+      "required": ["count", "options"],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       },
       "additionalProperties": false
     },
     "class": {
       "type": "object",
-      "required": ["id", "name", "description", "hitDie", "primaryAbility", "savingThrows", "skillChoices", "startingEquipment", "features"],
+      "required": ["id", "name", "description", "hitDie", "primaryAbility", "savingThrows", "skillChoices", "features"],
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^[a-z0-9-]+$",
-          "description": "Unique identifier for the class"
+          "pattern": "^[a-z0-9-]+$"
         },
-        "name": {
-          "type": "string",
-          "description": "Display name for the class"
-        },
-        "description": {
-          "type": "string",
-          "description": "Brief description of the class"
-        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
         "hitDie": {
           "type": "integer",
-          "enum": [6, 8, 10, 12],
-          "description": "Hit die size (d6, d8, d10, or d12)"
+          "enum": [6, 8, 10, 12]
         },
         "primaryAbility": {
           "type": "array",
           "items": {
             "type": "string",
             "enum": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]
-          },
-          "description": "Primary ability scores for this class"
+          }
         },
         "savingThrows": {
           "type": "array",
           "items": {
             "type": "string",
             "enum": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]
-          },
-          "description": "Saving throw proficiencies"
+          }
+        },
+        "proficiencies": {
+          "$ref": "#/$defs/grantedProficiencies"
         },
         "skillChoices": {
-          "type": "object",
-          "required": ["count", "options"],
-          "properties": {
-            "count": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "Number of skills to choose"
-            },
-            "options": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "Available skill options"
-            }
-          },
-          "additionalProperties": false
+          "$ref": "#/$defs/proficiencyChoice"
         },
         "startingEquipment": {
           "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Starting equipment options"
+          "items": { "$ref": "#/$defs/equipmentOption" }
         },
         "features": {
           "type": "array",
-          "items": {
-            "$ref": "#/$defs/classFeature"
-          },
-          "description": "Class features"
+          "items": { "$ref": "#/$defs/classFeature" }
+        },
+        "spellcasting": {
+          "$ref": "#/$defs/spellcastingConfig"
+        },
+        "subclassLevel": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Level at which subclass is chosen"
+        },
+        "subclassTitle": {
+          "type": "string",
+          "description": "What subclasses are called (e.g., 'Martial Archetype')"
         }
       },
       "additionalProperties": false
     },
     "classFeature": {
       "type": "object",
-      "required": ["name", "level", "description"],
+      "required": ["id", "name", "level", "description"],
       "properties": {
-        "name": {
+        "id": {
           "type": "string",
-          "description": "Feature name"
+          "pattern": "^[a-z0-9-]+$"
         },
+        "name": { "type": "string" },
         "level": {
           "type": "integer",
           "minimum": 1,
-          "maximum": 20,
-          "description": "Level at which feature is gained"
+          "maximum": 20
         },
-        "description": {
+        "description": { "type": "string" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/featureChoice" },
+          "description": "Choices the player must make for this feature"
+        },
+        "grantedProficiencies": {
+          "$ref": "#/$defs/grantedProficiencies"
+        }
+      },
+      "additionalProperties": false
+    },
+    "featureChoice": {
+      "type": "object",
+      "required": ["id", "type", "count", "options"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
           "type": "string",
-          "description": "Feature description"
+          "enum": ["skill", "spell", "maneuver", "invocation", "fighting-style", "other"]
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "spellcastingConfig": {
+      "type": "object",
+      "required": ["ability", "type"],
+      "properties": {
+        "ability": {
+          "type": "string",
+          "enum": ["intelligence", "wisdom", "charisma"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["full", "half", "third", "pact", "none"]
+        },
+        "known": {
+          "type": "boolean",
+          "description": "True if spells are known, false if prepared from full list"
+        },
+        "ritual": {
+          "type": "boolean",
+          "description": "Can cast spells as rituals"
+        },
+        "cantripsKnown": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "description": "Cantrips known by level (index = level - 1)"
+        },
+        "spellsKnown": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "description": "Spells known by level (for known casters)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "subclass": {
+      "type": "object",
+      "required": ["id", "name", "parentClassId", "features"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": { "type": "string" },
+        "parentClassId": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "description": { "type": "string" },
+        "features": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/classFeature" }
+        },
+        "spellcasting": {
+          "$ref": "#/$defs/spellcastingConfig",
+          "description": "If subclass grants spellcasting"
+        },
+        "spellList": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Additional spells available to this subclass"
+        }
+      },
+      "additionalProperties": false
+    },
+    "equipmentOption": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["item", "choice"]
+        },
+        "itemId": {
+          "type": "string",
+          "description": "For type=item, the equipment ID"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "options": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/equipmentOption" },
+          "description": "For type=choice, the available options"
         }
       },
       "additionalProperties": false
@@ -213,30 +495,17 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^[a-z0-9-]+$",
-          "description": "Unique identifier for the background"
+          "pattern": "^[a-z0-9-]+$"
         },
-        "name": {
-          "type": "string",
-          "description": "Display name for the background"
-        },
-        "description": {
-          "type": "string",
-          "description": "Brief description of the background"
-        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
         "skillProficiencies": {
           "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Skills granted by background"
+          "items": { "type": "string" }
         },
         "toolProficiencies": {
           "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Tool proficiencies granted"
+          "items": { "type": "string" }
         },
         "languages": {
           "type": "integer",
@@ -245,25 +514,70 @@
         },
         "equipment": {
           "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Starting equipment from background"
+          "items": { "type": "string" }
         },
         "feature": {
           "type": "object",
           "required": ["name", "description"],
           "properties": {
-            "name": {
-              "type": "string",
-              "description": "Feature name"
+            "name": { "type": "string" },
+            "description": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "suggestedCharacteristics": {
+          "type": "object",
+          "properties": {
+            "personalityTraits": {
+              "type": "array",
+              "items": { "type": "string" }
             },
-            "description": {
-              "type": "string",
-              "description": "Feature description"
+            "ideals": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "bonds": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "flaws": {
+              "type": "array",
+              "items": { "type": "string" }
             }
           },
           "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "feat": {
+      "type": "object",
+      "required": ["id", "name", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "prerequisites": {
+          "type": "object",
+          "properties": {
+            "level": { "type": "integer", "minimum": 1 },
+            "ability": {
+              "type": "object",
+              "additionalProperties": { "type": "integer" }
+            },
+            "proficiency": { "type": "string" },
+            "spellcasting": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "abilityIncrease": {
+          "$ref": "#/$defs/abilityBonusChoice"
+        },
+        "grantedProficiencies": {
+          "$ref": "#/$defs/grantedProficiencies"
         }
       },
       "additionalProperties": false
@@ -274,90 +588,139 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^[a-z0-9-]+$",
-          "description": "Unique identifier for the spell"
+          "pattern": "^[a-z0-9-]+$"
         },
-        "name": {
-          "type": "string",
-          "description": "Spell name"
-        },
+        "name": { "type": "string" },
         "level": {
           "type": "integer",
           "minimum": 0,
-          "maximum": 9,
-          "description": "Spell level (0 for cantrips)"
+          "maximum": 9
         },
         "school": {
           "type": "string",
-          "description": "School of magic"
+          "enum": ["abjuration", "conjuration", "divination", "enchantment", "evocation", "illusion", "necromancy", "transmutation"]
         },
-        "castingTime": {
-          "type": "string",
-          "description": "Casting time"
-        },
-        "range": {
-          "type": "string",
-          "description": "Spell range"
-        },
+        "castingTime": { "type": "string" },
+        "range": { "type": "string" },
         "components": {
-          "type": "string",
-          "description": "Required components (V, S, M)"
+          "type": "object",
+          "properties": {
+            "verbal": { "type": "boolean" },
+            "somatic": { "type": "boolean" },
+            "material": { "type": "string" }
+          },
+          "additionalProperties": false
         },
-        "duration": {
+        "duration": { "type": "string" },
+        "concentration": { "type": "boolean" },
+        "ritual": { "type": "boolean" },
+        "description": { "type": "string" },
+        "higherLevels": {
           "type": "string",
-          "description": "Spell duration"
-        },
-        "description": {
-          "type": "string",
-          "description": "Spell effect description"
+          "description": "Effects when cast at higher levels"
         },
         "classes": {
           "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Classes that can use this spell"
+          "items": { "type": "string" }
         }
       },
       "additionalProperties": false
     },
     "equipment": {
       "type": "object",
-      "required": ["id", "name", "type", "cost", "weight", "description"],
+      "required": ["id", "name", "type", "cost", "weight"],
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^[a-z0-9-]+$",
-          "description": "Unique identifier for the equipment"
+          "pattern": "^[a-z0-9-]+$"
         },
-        "name": {
-          "type": "string",
-          "description": "Equipment name"
-        },
+        "name": { "type": "string" },
         "type": {
           "type": "string",
-          "enum": ["weapon", "armor", "gear", "tool"],
-          "description": "Equipment type"
+          "enum": ["weapon", "armor", "shield", "gear", "tool", "vehicle", "mount"]
         },
         "cost": {
-          "type": "string",
-          "description": "Cost in gold pieces (e.g., '10 gp')"
+          "type": "object",
+          "required": ["amount", "unit"],
+          "properties": {
+            "amount": { "type": "number", "minimum": 0 },
+            "unit": {
+              "type": "string",
+              "enum": ["cp", "sp", "ep", "gp", "pp"]
+            }
+          },
+          "additionalProperties": false
         },
         "weight": {
           "type": "number",
-          "minimum": 0,
-          "description": "Weight in pounds"
+          "minimum": 0
         },
-        "description": {
-          "type": "string",
-          "description": "Equipment description"
-        },
+        "description": { "type": "string" },
         "properties": {
           "type": "array",
-          "items": {
-            "type": "string"
+          "items": { "type": "string" }
+        },
+        "weapon": {
+          "$ref": "#/$defs/weaponProperties"
+        },
+        "armor": {
+          "$ref": "#/$defs/armorProperties"
+        }
+      },
+      "additionalProperties": false
+    },
+    "weaponProperties": {
+      "type": "object",
+      "required": ["damage", "damageType"],
+      "properties": {
+        "damage": { "type": "string" },
+        "damageType": {
+          "type": "string",
+          "enum": ["bludgeoning", "piercing", "slashing"]
+        },
+        "range": {
+          "type": "object",
+          "properties": {
+            "normal": { "type": "integer" },
+            "long": { "type": "integer" }
           },
-          "description": "Special properties (e.g., 'finesse', 'light')"
+          "additionalProperties": false
+        },
+        "versatileDamage": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "armorProperties": {
+      "type": "object",
+      "required": ["baseAC", "armorType"],
+      "properties": {
+        "baseAC": { "type": "integer" },
+        "armorType": {
+          "type": "string",
+          "enum": ["light", "medium", "heavy", "shield"]
+        },
+        "maxDexBonus": {
+          "type": ["integer", "null"],
+          "description": "Max DEX bonus (null = no limit, 0 = no bonus)"
+        },
+        "stealthDisadvantage": { "type": "boolean" },
+        "strengthRequired": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "trait": {
+      "type": "object",
+      "required": ["id", "name", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/featureChoice" }
         }
       },
       "additionalProperties": false
