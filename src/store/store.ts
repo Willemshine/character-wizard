@@ -82,14 +82,14 @@ class Store {
 
   subscribe<K extends StateKey>(key: K, listener: Listener<AppState[K]>): Unsubscribe {
     if (!this.listeners[key]) {
-      this.listeners[key] = new Set();
+      (this.listeners as Record<K, Set<Listener<AppState[K]>>>)[key] = new Set();
     }
-    this.listeners[key]!.add(listener as Listener<AppState[StateKey]>);
+    (this.listeners[key] as Set<Listener<AppState[K]>>).add(listener);
 
     listener(this.state[key]);
 
     return () => {
-      this.listeners[key]?.delete(listener as Listener<AppState[StateKey]>);
+      (this.listeners[key] as Set<Listener<AppState[K]>> | undefined)?.delete(listener);
     };
   }
 
@@ -146,11 +146,12 @@ class Store {
   }
 
   addLoadedPack(pack: ModulePack) {
-    const existing = this.state.loadedPacks.find((p) => p.id === pack.id);
+    const packId = pack.manifest.id;
+    const existing = this.state.loadedPacks.find((p) => p.manifest.id === packId);
     if (existing) {
       this.set(
         'loadedPacks',
-        this.state.loadedPacks.map((p) => (p.id === pack.id ? pack : p))
+        this.state.loadedPacks.map((p) => (p.manifest.id === packId ? pack : p))
       );
     } else {
       this.set('loadedPacks', [...this.state.loadedPacks, pack]);

@@ -218,7 +218,7 @@ export class OptionsPage extends LitElement {
 
     try {
       const pack = await packLoader.uploadPack(file);
-      this.success = `Successfully loaded module: ${pack.name}`;
+      this.success = `Successfully loaded module: ${pack.manifest.name}`;
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Failed to load module';
     }

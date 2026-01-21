@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { store } from '../store/store.ts';
 import { router } from '../router/router.ts';
 import { persistence } from '../services/persistence.ts';
 import { packLoader } from '../services/pack-loader.ts';

@@ -1,93 +1,83 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://character-wizard.app/schemas/character.schema.json",
-  "title": "Character",
-  "description": "A character created with Character Wizard",
+  "title": "Character State",
+  "description": "A character created with Character Wizard (Schema Version 2)",
   "type": "object",
-  "required": ["id", "name", "race", "class", "level", "abilityScores", "createdAt", "updatedAt"],
+  "required": [
+    "id",
+    "schemaVersion",
+    "appVersion",
+    "edition",
+    "level",
+    "name",
+    "selections",
+    "derived",
+    "currentState",
+    "enabledModules",
+    "notes",
+    "createdAt",
+    "updatedAt"
+  ],
   "properties": {
     "id": {
       "type": "string",
       "format": "uuid",
       "description": "Unique identifier for the character"
     },
-    "name": {
-      "type": "string",
-      "description": "Character's name"
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version for migrations"
     },
-    "race": {
+    "appVersion": {
       "type": "string",
-      "description": "Character's race ID"
+      "pattern": "^\\d+\\.\\d+\\.\\d+",
+      "description": "App version that created/modified this character"
     },
-    "class": {
+    "edition": {
       "type": "string",
-      "description": "Character's class ID"
+      "enum": ["5e", "5e-2024", "custom"],
+      "description": "Game edition"
     },
     "level": {
       "type": "integer",
       "minimum": 1,
       "maximum": 20,
-      "description": "Character's level"
+      "description": "Character level"
     },
-    "background": {
+    "name": {
       "type": "string",
-      "description": "Character's background ID"
+      "description": "Character's display name"
     },
-    "abilityScores": {
-      "$ref": "#/$defs/abilityScores"
+    "playerName": {
+      "type": "string",
+      "description": "Player name (optional)"
     },
-    "hitPoints": {
+    "experiencePoints": {
       "type": "integer",
       "minimum": 0,
-      "description": "Current hit points"
+      "description": "Experience points (optional)"
     },
-    "maxHitPoints": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Maximum hit points"
+    "selections": {
+      "$ref": "#/$defs/characterSelections"
     },
-    "armorClass": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Armor class"
+    "derived": {
+      "$ref": "#/$defs/derivedStats"
     },
-    "proficiencyBonus": {
-      "type": "integer",
-      "minimum": 2,
-      "maximum": 6,
-      "description": "Proficiency bonus based on level"
+    "currentState": {
+      "$ref": "#/$defs/currentState"
     },
-    "skills": {
+    "enabledModules": {
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "#/$defs/enabledModule"
       },
-      "description": "List of proficient skills"
-    },
-    "equipment": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "List of equipment items"
-    },
-    "features": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "List of features and traits"
-    },
-    "spells": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "List of known spells (optional)"
+      "description": "Modules enabled for this character"
     },
     "notes": {
       "type": "string",
-      "description": "Player notes about the character"
+      "description": "Player notes and custom content"
     },
     "createdAt": {
       "type": "string",
@@ -101,46 +91,368 @@
     }
   },
   "$defs": {
+    "abilityName": {
+      "type": "string",
+      "enum": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]
+    },
+    "skillName": {
+      "type": "string",
+      "enum": [
+        "acrobatics", "animalHandling", "arcana", "athletics", "deception",
+        "history", "insight", "intimidation", "investigation", "medicine",
+        "nature", "perception", "performance", "persuasion", "religion",
+        "sleightOfHand", "stealth", "survival"
+      ]
+    },
     "abilityScores": {
       "type": "object",
       "required": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"],
       "properties": {
-        "strength": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 30,
-          "description": "Strength score"
-        },
-        "dexterity": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 30,
-          "description": "Dexterity score"
-        },
-        "constitution": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 30,
-          "description": "Constitution score"
-        },
-        "intelligence": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 30,
-          "description": "Intelligence score"
-        },
-        "wisdom": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 30,
-          "description": "Wisdom score"
-        },
-        "charisma": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 30,
-          "description": "Charisma score"
+        "strength": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "dexterity": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "constitution": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "intelligence": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "wisdom": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "charisma": { "type": "integer", "minimum": 1, "maximum": 30 }
+      },
+      "additionalProperties": false
+    },
+    "partialAbilityScores": {
+      "type": "object",
+      "properties": {
+        "strength": { "type": "integer" },
+        "dexterity": { "type": "integer" },
+        "constitution": { "type": "integer" },
+        "intelligence": { "type": "integer" },
+        "wisdom": { "type": "integer" },
+        "charisma": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "abilityScoreMethod": {
+      "type": "string",
+      "enum": ["standard-array", "point-buy", "manual", "roll-4d6-drop-lowest", "roll-3d6"]
+    },
+    "abilityScoreSelection": {
+      "type": "object",
+      "required": ["method", "baseScores", "racialBonuses", "miscBonuses"],
+      "properties": {
+        "method": { "$ref": "#/$defs/abilityScoreMethod" },
+        "baseScores": { "$ref": "#/$defs/abilityScores" },
+        "racialBonuses": { "$ref": "#/$defs/partialAbilityScores" },
+        "miscBonuses": { "$ref": "#/$defs/partialAbilityScores" }
+      },
+      "additionalProperties": false
+    },
+    "raceSelection": {
+      "type": ["object", "null"],
+      "required": ["raceId", "traitChoices"],
+      "properties": {
+        "raceId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "subraceId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "traitChoices": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
         }
+      },
+      "additionalProperties": false
+    },
+    "classSelection": {
+      "type": ["object", "null"],
+      "required": ["classId"],
+      "properties": {
+        "classId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "subclassId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "subclassLevel": { "type": "integer", "minimum": 1, "maximum": 20 }
+      },
+      "additionalProperties": false
+    },
+    "backgroundSelection": {
+      "type": ["object", "null"],
+      "required": ["backgroundId", "customizations"],
+      "properties": {
+        "backgroundId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "customizations": {
+          "type": "object",
+          "properties": {
+            "personalityTraits": { "type": "array", "items": { "type": "string" } },
+            "ideals": { "type": "array", "items": { "type": "string" } },
+            "bonds": { "type": "array", "items": { "type": "string" } },
+            "flaws": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "proficiencySelection": {
+      "type": "object",
+      "required": ["skills", "tools", "weapons", "armor", "languages", "savingThrows"],
+      "properties": {
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/skillName" }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "weapons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "armor": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "savingThrows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/abilityName" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "equipmentItem": {
+      "type": "object",
+      "required": ["itemId", "quantity", "equipped"],
+      "properties": {
+        "itemId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "quantity": { "type": "integer", "minimum": 1 },
+        "equipped": { "type": "boolean" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "currency": {
+      "type": "object",
+      "required": ["cp", "sp", "ep", "gp", "pp"],
+      "properties": {
+        "cp": { "type": "integer", "minimum": 0 },
+        "sp": { "type": "integer", "minimum": 0 },
+        "ep": { "type": "integer", "minimum": 0 },
+        "gp": { "type": "integer", "minimum": 0 },
+        "pp": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "equipmentSelection": {
+      "type": "object",
+      "required": ["startingEquipment", "additionalEquipment", "currency"],
+      "properties": {
+        "startingEquipment": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/equipmentItem" }
+        },
+        "additionalEquipment": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/equipmentItem" }
+        },
+        "currency": { "$ref": "#/$defs/currency" }
+      },
+      "additionalProperties": false
+    },
+    "traitChoice": {
+      "type": "object",
+      "required": ["featureId", "choiceId", "selectedOptions"],
+      "properties": {
+        "featureId": { "type": "string" },
+        "choiceId": { "type": "string" },
+        "selectedOptions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "spellSelection": {
+      "type": "object",
+      "required": ["cantrips", "knownSpells", "preparedSpells", "usedSlots"],
+      "properties": {
+        "cantrips": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "knownSpells": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "preparedSpells": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "usedSlots": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "characterSelections": {
+      "type": "object",
+      "required": ["race", "class", "background", "abilityScores", "proficiencies", "equipment", "traitChoices", "spells"],
+      "properties": {
+        "race": { "$ref": "#/$defs/raceSelection" },
+        "class": { "$ref": "#/$defs/classSelection" },
+        "background": { "$ref": "#/$defs/backgroundSelection" },
+        "abilityScores": { "$ref": "#/$defs/abilityScoreSelection" },
+        "proficiencies": { "$ref": "#/$defs/proficiencySelection" },
+        "equipment": { "$ref": "#/$defs/equipmentSelection" },
+        "traitChoices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/traitChoice" }
+        },
+        "spells": { "$ref": "#/$defs/spellSelection" }
+      },
+      "additionalProperties": false
+    },
+    "abilityModifiers": {
+      "type": "object",
+      "required": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"],
+      "properties": {
+        "strength": { "type": "integer" },
+        "dexterity": { "type": "integer" },
+        "constitution": { "type": "integer" },
+        "intelligence": { "type": "integer" },
+        "wisdom": { "type": "integer" },
+        "charisma": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "skillModifiers": {
+      "type": "object",
+      "required": [
+        "acrobatics", "animalHandling", "arcana", "athletics", "deception",
+        "history", "insight", "intimidation", "investigation", "medicine",
+        "nature", "perception", "performance", "persuasion", "religion",
+        "sleightOfHand", "stealth", "survival"
+      ],
+      "properties": {
+        "acrobatics": { "type": "integer" },
+        "animalHandling": { "type": "integer" },
+        "arcana": { "type": "integer" },
+        "athletics": { "type": "integer" },
+        "deception": { "type": "integer" },
+        "history": { "type": "integer" },
+        "insight": { "type": "integer" },
+        "intimidation": { "type": "integer" },
+        "investigation": { "type": "integer" },
+        "medicine": { "type": "integer" },
+        "nature": { "type": "integer" },
+        "perception": { "type": "integer" },
+        "performance": { "type": "integer" },
+        "persuasion": { "type": "integer" },
+        "religion": { "type": "integer" },
+        "sleightOfHand": { "type": "integer" },
+        "stealth": { "type": "integer" },
+        "survival": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "savingThrows": {
+      "type": "object",
+      "required": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"],
+      "properties": {
+        "strength": { "type": "integer" },
+        "dexterity": { "type": "integer" },
+        "constitution": { "type": "integer" },
+        "intelligence": { "type": "integer" },
+        "wisdom": { "type": "integer" },
+        "charisma": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "hitDice": {
+      "type": "object",
+      "required": ["total", "dieSize", "used"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 1 },
+        "dieSize": { "type": "integer", "enum": [6, 8, 10, 12] },
+        "used": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "spellSlots": {
+      "type": ["object", "null"],
+      "required": ["slots", "spellcastingAbility", "spellSaveDC", "spellAttackBonus"],
+      "properties": {
+        "slots": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "maxItems": 9
+        },
+        "spellcastingAbility": {
+          "oneOf": [
+            { "$ref": "#/$defs/abilityName" },
+            { "type": "null" }
+          ]
+        },
+        "spellSaveDC": { "type": "integer" },
+        "spellAttackBonus": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "derivedStats": {
+      "type": "object",
+      "required": [
+        "abilityModifiers", "proficiencyBonus", "skills", "savingThrows",
+        "armorClass", "maxHitPoints", "hitDice", "initiative", "speed",
+        "passivePerception", "spellSlots"
+      ],
+      "properties": {
+        "abilityModifiers": { "$ref": "#/$defs/abilityModifiers" },
+        "proficiencyBonus": { "type": "integer", "minimum": 2, "maximum": 6 },
+        "skills": { "$ref": "#/$defs/skillModifiers" },
+        "savingThrows": { "$ref": "#/$defs/savingThrows" },
+        "armorClass": { "type": "integer", "minimum": 0 },
+        "maxHitPoints": { "type": "integer", "minimum": 0 },
+        "hitDice": { "$ref": "#/$defs/hitDice" },
+        "initiative": { "type": "integer" },
+        "speed": { "type": "integer", "minimum": 0 },
+        "passivePerception": { "type": "integer" },
+        "spellSlots": { "$ref": "#/$defs/spellSlots" }
+      },
+      "additionalProperties": false
+    },
+    "deathSaves": {
+      "type": "object",
+      "required": ["successes", "failures"],
+      "properties": {
+        "successes": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "failures": { "type": "integer", "minimum": 0, "maximum": 3 }
+      },
+      "additionalProperties": false
+    },
+    "currentState": {
+      "type": "object",
+      "required": ["hitPoints", "tempHitPoints", "deathSaves", "conditions", "exhaustionLevel"],
+      "properties": {
+        "hitPoints": { "type": "integer", "minimum": 0 },
+        "tempHitPoints": { "type": "integer", "minimum": 0 },
+        "deathSaves": { "$ref": "#/$defs/deathSaves" },
+        "conditions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "exhaustionLevel": { "type": "integer", "minimum": 0, "maximum": 6 }
+      },
+      "additionalProperties": false
+    },
+    "enabledModule": {
+      "type": "object",
+      "required": ["moduleId", "version", "enabledAt"],
+      "properties": {
+        "moduleId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "enabledAt": { "type": "string", "format": "date-time" }
       },
       "additionalProperties": false
     }

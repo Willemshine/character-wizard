@@ -1,4 +1,5 @@
 import type { ModulePack, ModuleMetadata } from '../types/index.ts';
+import { normalizePack } from '../types/module.ts';
 import { persistence } from './persistence.ts';
 import { store } from '../store/store.ts';
 
@@ -20,7 +21,7 @@ class PackLoader {
       try {
         const pack = await this.fetchPack(`${PACKS_PATH}/${filename}`);
         if (pack) {
-          this.loadedPacks.set(pack.id, pack);
+          this.loadedPacks.set(pack.manifest.id, pack);
         }
       } catch (error) {
         console.warn(`Failed to load built-in pack: ${filename}`, error);
@@ -31,7 +32,8 @@ class PackLoader {
   private async loadUploadedPacks(): Promise<void> {
     const uploadedPacks = await persistence.getUploadedPacks();
     for (const pack of uploadedPacks) {
-      this.loadedPacks.set(pack.id, pack);
+      const normalized = normalizePack(pack);
+      this.loadedPacks.set(normalized.manifest.id, normalized);
     }
   }
 
@@ -41,7 +43,8 @@ class PackLoader {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
-      return await response.json();
+      const data = await response.json();
+      return normalizePack(data);
     } catch (error) {
       console.error(`Failed to fetch pack from ${url}:`, error);
       return null;
@@ -55,14 +58,17 @@ class PackLoader {
     const modules: ModuleMetadata[] = [];
 
     for (const pack of this.loadedPacks.values()) {
-      const existing = existingMap.get(pack.id);
-      const isBuiltIn = BUILT_IN_PACKS.some((f) => f.replace('.json', '') === pack.id || pack.id === 'core');
+      const packId = pack.manifest.id;
+      const existing = existingMap.get(packId);
+      const isBuiltIn = BUILT_IN_PACKS.some(
+        (f) => f.replace('.json', '') === packId || packId === 'core'
+      );
 
       modules.push({
-        id: pack.id,
-        name: pack.name,
-        version: pack.version,
-        description: pack.description,
+        id: packId,
+        name: pack.manifest.name,
+        version: pack.manifest.version,
+        description: pack.manifest.description,
         enabled: existing?.enabled ?? true,
         isBuiltIn,
         isUploaded: !isBuiltIn,
@@ -76,14 +82,15 @@ class PackLoader {
 
   async uploadPack(file: File): Promise<ModulePack> {
     const text = await file.text();
-    const pack = JSON.parse(text) as ModulePack;
+    const rawPack = JSON.parse(text);
+    const pack = normalizePack(rawPack);
 
-    if (!pack.id || !pack.name || !pack.version) {
+    if (!pack.manifest.id || !pack.manifest.name || !pack.manifest.version) {
       throw new Error('Invalid pack format: missing required fields (id, name, version)');
     }
 
     await persistence.saveUploadedPack(pack);
-    this.loadedPacks.set(pack.id, pack);
+    this.loadedPacks.set(pack.manifest.id, pack);
     await this.syncModuleMetadata();
 
     return pack;
@@ -115,27 +122,45 @@ class PackLoader {
   getEnabledPacks(): ModulePack[] {
     const modules = store.get('modules');
     const enabledIds = new Set(modules.filter((m) => m.enabled).map((m) => m.id));
-    return Array.from(this.loadedPacks.values()).filter((p) => enabledIds.has(p.id));
+    return Array.from(this.loadedPacks.values()).filter((p) =>
+      enabledIds.has(p.manifest.id)
+    );
   }
 
   getAllRaces() {
-    return this.getEnabledPacks().flatMap((p) => p.races ?? []);
+    return this.getEnabledPacks().flatMap((p) => p.content.races ?? []);
+  }
+
+  getAllSubraces() {
+    return this.getEnabledPacks().flatMap((p) => p.content.subraces ?? []);
   }
 
   getAllClasses() {
-    return this.getEnabledPacks().flatMap((p) => p.classes ?? []);
+    return this.getEnabledPacks().flatMap((p) => p.content.classes ?? []);
+  }
+
+  getAllSubclasses() {
+    return this.getEnabledPacks().flatMap((p) => p.content.subclasses ?? []);
   }
 
   getAllBackgrounds() {
-    return this.getEnabledPacks().flatMap((p) => p.backgrounds ?? []);
+    return this.getEnabledPacks().flatMap((p) => p.content.backgrounds ?? []);
+  }
+
+  getAllFeats() {
+    return this.getEnabledPacks().flatMap((p) => p.content.feats ?? []);
   }
 
   getAllSpells() {
-    return this.getEnabledPacks().flatMap((p) => p.spells ?? []);
+    return this.getEnabledPacks().flatMap((p) => p.content.spells ?? []);
   }
 
   getAllEquipment() {
-    return this.getEnabledPacks().flatMap((p) => p.equipment ?? []);
+    return this.getEnabledPacks().flatMap((p) => p.content.equipment ?? []);
+  }
+
+  getAllTraits() {
+    return this.getEnabledPacks().flatMap((p) => p.content.traits ?? []);
   }
 }
 
