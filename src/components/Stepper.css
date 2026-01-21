@@ -1,0 +1,78 @@
+.stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.stepper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 60px;
+  cursor: default;
+}
+
+.stepper-item.completed {
+  cursor: pointer;
+}
+
+.stepper-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.stepper-item.active .stepper-number {
+  background: #6366f1;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.stepper-item.completed .stepper-number {
+  background: #22c55e;
+  color: white;
+}
+
+.stepper-label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.stepper-item.active .stepper-label {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.stepper-item.completed .stepper-label {
+  color: #22c55e;
+}
+
+.stepper-line {
+  position: absolute;
+  top: 18px;
+  left: calc(50% + 18px);
+  width: calc(100% - 36px);
+  height: 2px;
+  background: #e2e8f0;
+}
+
+.stepper-item.completed .stepper-line {
+  background: #22c55e;
+}
