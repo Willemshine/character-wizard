@@ -3,7 +3,7 @@
  */
 
 // Types
-export * from './types';
+export * from './types/index.js';
 
 // Migrations
-export * from './migrations';
+export * from './migrations/index.js';

@@ -5,12 +5,12 @@
  * Migrations are automatically registered when imported.
  */
 
-export * from './types';
-export * from './migrator';
+export * from './types.js';
+export * from './migrator.js';
 
 // Import migrations to register them
 // Add new migrations here as they're created
-import './v1_to_v2';
+import './v1_to_v2.js';
 
 // Re-export for convenience
-export { default as v1_to_v2 } from './v1_to_v2';
+export { default as v1_to_v2 } from './v1_to_v2.js';

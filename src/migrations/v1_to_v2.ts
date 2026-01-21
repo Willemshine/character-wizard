@@ -10,8 +10,8 @@
  * - Add `hitDiceUsed` to derived stats
  */
 
-import type { Migration } from './types';
-import { registry } from './migrator';
+import type { Migration } from './types.js';
+import { registry } from './migrator.js';
 
 // Type definitions for v1 schema (what we're migrating FROM)
 interface CharacterStateV1 {

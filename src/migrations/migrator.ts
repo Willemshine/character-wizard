@@ -3,8 +3,8 @@
  * Handles upgrading character data from older schema versions
  */
 
-import type { CharacterState } from '../types/character';
-import type { AnyMigration, MigrationResult } from './types';
+import type { CharacterState } from '../types/character.js';
+import type { AnyMigration, MigrationResult } from './types.js';
 
 class MigrationRegistry {
   private migrations: Map<number, AnyMigration> = new Map();

@@ -311,10 +311,7 @@ export function createEmptyCharacterState(
       updatedAt: now,
     },
     selections: {
-      race: undefined,
       classes: [],
-      background: undefined,
-      abilityScores: undefined,
       proficiencies: [],
       equipment: { items: [] },
       traits: [],

@@ -2,5 +2,5 @@
  * Type definitions index
  */
 
-export * from './character';
-export * from './modulepack';
+export * from './character.js';
+export * from './modulepack.js';
