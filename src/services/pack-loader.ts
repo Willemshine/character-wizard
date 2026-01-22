@@ -135,12 +135,20 @@ class PackLoader {
     return this.getEnabledPacks().flatMap((p) => p.content.subraces ?? []);
   }
 
+  getSubracesForRace(raceId: string) {
+    return this.getAllSubraces().filter((s) => s.parentRaceId === raceId);
+  }
+
   getAllClasses() {
     return this.getEnabledPacks().flatMap((p) => p.content.classes ?? []);
   }
 
   getAllSubclasses() {
     return this.getEnabledPacks().flatMap((p) => p.content.subclasses ?? []);
+  }
+
+  getSubclassesForClass(classId: string) {
+    return this.getAllSubclasses().filter((s) => s.parentClassId === classId);
   }
 
   getAllBackgrounds() {

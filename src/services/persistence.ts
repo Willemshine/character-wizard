@@ -1,5 +1,8 @@
 import { openDB, type IDBPDatabase } from 'idb';
-import type { Character, CharacterSummary, ModuleMetadata, ModulePack } from '../types/index.ts';
+import type { Character, CharacterState, CharacterSummary, ModuleMetadata, ModulePack } from '../types/index.ts';
+
+/** Union type for both legacy Character and new CharacterState */
+type AnyCharacter = Character | CharacterState;
 
 const DB_NAME = 'character-wizard';
 const DB_VERSION = 1;
@@ -11,7 +14,7 @@ interface AppSettings {
 interface CharacterWizardDB {
   characters: {
     key: string;
-    value: Character;
+    value: AnyCharacter;
     indexes: { 'by-updated': string };
   };
   modules: {
@@ -70,13 +73,13 @@ class PersistenceService {
     return this.db!;
   }
 
-  async saveCharacter(character: Character): Promise<void> {
+  async saveCharacter(character: AnyCharacter): Promise<void> {
     const db = await this.ensureDb();
     character.updatedAt = new Date().toISOString();
     await db.put('characters', character);
   }
 
-  async getCharacter(id: string): Promise<Character | undefined> {
+  async getCharacter(id: string): Promise<AnyCharacter | undefined> {
     const db = await this.ensureDb();
     return db.get('characters', id);
   }
@@ -85,14 +88,19 @@ class PersistenceService {
     const db = await this.ensureDb();
     const characters = await db.getAllFromIndex('characters', 'by-updated');
 
-    return characters.reverse().map((c) => ({
-      id: c.id,
-      name: c.name,
-      race: c.race,
-      class: c.class,
-      level: c.level,
-      updatedAt: c.updatedAt,
-    }));
+    return characters.reverse().map((c) => {
+      // Handle both legacy Character and new CharacterState formats
+      const isCharacterState = 'selections' in c;
+
+      return {
+        id: c.id,
+        name: c.name,
+        race: isCharacterState ? (c as CharacterState).selections.race?.raceId ?? '' : (c as Character).race,
+        class: isCharacterState ? (c as CharacterState).selections.class?.classId ?? '' : (c as Character).class,
+        level: c.level,
+        updatedAt: c.updatedAt,
+      };
+    });
   }
 
   async deleteCharacter(id: string): Promise<void> {

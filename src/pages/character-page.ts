@@ -3,9 +3,56 @@ import { customElement, state } from 'lit/decorators.js';
 import { router } from '../router/router.ts';
 import { persistence } from '../services/persistence.ts';
 import { packLoader } from '../services/pack-loader.ts';
-import { calculateModifier, type Character } from '../types/index.ts';
+import {
+  calculateModifier,
+  type Character,
+  type CharacterState,
+  calculateFinalAbilityScores,
+} from '../types/index.ts';
 import '../components/ui/cw-button.ts';
 import '../components/ui/cw-card.ts';
+
+/** Union type to support both legacy and new character formats */
+type AnyCharacter = Character | CharacterState;
+
+/** Helper to check if character is CharacterState (v2 format) */
+function isCharacterState(char: AnyCharacter): char is CharacterState {
+  return 'selections' in char;
+}
+
+/** Extract common character data from either format */
+function getCharacterData(char: AnyCharacter) {
+  if (isCharacterState(char)) {
+    const abilityScores = calculateFinalAbilityScores(char.selections.abilityScores);
+    return {
+      raceId: char.selections.race?.raceId ?? '',
+      classId: char.selections.class?.classId ?? '',
+      backgroundId: char.selections.background?.backgroundId ?? '',
+      abilityScores,
+      hitPoints: char.currentState.hitPoints,
+      maxHitPoints: char.derived.maxHitPoints,
+      armorClass: char.derived.armorClass,
+      proficiencyBonus: char.derived.proficiencyBonus,
+      skills: char.selections.proficiencies.skills as string[],
+      equipment: char.selections.equipment.startingEquipment.map(e => e.itemId),
+      features: char.selections.traitChoices.map(tc => tc.featureId),
+    };
+  } else {
+    return {
+      raceId: char.race,
+      classId: char.class,
+      backgroundId: char.background,
+      abilityScores: char.abilityScores,
+      hitPoints: char.hitPoints,
+      maxHitPoints: char.maxHitPoints,
+      armorClass: char.armorClass,
+      proficiencyBonus: char.proficiencyBonus,
+      skills: char.skills,
+      equipment: char.equipment,
+      features: char.features,
+    };
+  }
+}
 
 @customElement('character-page')
 export class CharacterPage extends LitElement {
@@ -180,7 +227,7 @@ export class CharacterPage extends LitElement {
     }
   `;
 
-  @state() private character: Character | null = null;
+  @state() private character: AnyCharacter | null = null;
   @state() private isLoading = true;
 
   private unsubscribeRouter: (() => void) | null = null;
@@ -238,19 +285,30 @@ export class CharacterPage extends LitElement {
     return mod >= 0 ? `+${mod}` : `${mod}`;
   }
 
+  private getCharData() {
+    if (!this.character) return null;
+    return getCharacterData(this.character);
+  }
+
   private getRaceName(): string {
-    const race = packLoader.getAllRaces().find((r) => r.id === this.character?.race);
-    return race?.name || this.character?.race || 'Unknown';
+    const data = this.getCharData();
+    if (!data) return 'Unknown';
+    const race = packLoader.getAllRaces().find((r) => r.id === data.raceId);
+    return race?.name || data.raceId || 'Unknown';
   }
 
   private getClassName(): string {
-    const cls = packLoader.getAllClasses().find((c) => c.id === this.character?.class);
-    return cls?.name || this.character?.class || 'Unknown';
+    const data = this.getCharData();
+    if (!data) return 'Unknown';
+    const cls = packLoader.getAllClasses().find((c) => c.id === data.classId);
+    return cls?.name || data.classId || 'Unknown';
   }
 
   private getBackgroundName(): string {
-    const bg = packLoader.getAllBackgrounds().find((b) => b.id === this.character?.background);
-    return bg?.name || this.character?.background || 'Unknown';
+    const data = this.getCharData();
+    if (!data) return 'Unknown';
+    const bg = packLoader.getAllBackgrounds().find((b) => b.id === data.backgroundId);
+    return bg?.name || data.backgroundId || 'Unknown';
   }
 
   render() {
@@ -267,14 +325,17 @@ export class CharacterPage extends LitElement {
       `;
     }
 
+    const data = this.getCharData();
+    if (!data) return html`<div class="loading">Loading...</div>`;
+
     const abilities = [
-      { key: 'strength', name: 'STR' },
-      { key: 'dexterity', name: 'DEX' },
-      { key: 'constitution', name: 'CON' },
-      { key: 'intelligence', name: 'INT' },
-      { key: 'wisdom', name: 'WIS' },
-      { key: 'charisma', name: 'CHA' },
-    ] as const;
+      { key: 'strength' as const, name: 'STR' },
+      { key: 'dexterity' as const, name: 'DEX' },
+      { key: 'constitution' as const, name: 'CON' },
+      { key: 'intelligence' as const, name: 'INT' },
+      { key: 'wisdom' as const, name: 'WIS' },
+      { key: 'charisma' as const, name: 'CHA' },
+    ];
 
     return html`
       <div class="header">
@@ -294,15 +355,15 @@ export class CharacterPage extends LitElement {
           <div class="stats-row">
             <div class="stat-box">
               <div class="label">HP</div>
-              <div class="value">${this.character.hitPoints}/${this.character.maxHitPoints}</div>
+              <div class="value">${data.hitPoints}/${data.maxHitPoints}</div>
             </div>
             <div class="stat-box">
               <div class="label">AC</div>
-              <div class="value">${this.character.armorClass}</div>
+              <div class="value">${data.armorClass}</div>
             </div>
             <div class="stat-box">
               <div class="label">Prof</div>
-              <div class="value">+${this.character.proficiencyBonus}</div>
+              <div class="value">+${data.proficiencyBonus}</div>
             </div>
           </div>
         </div>
@@ -314,9 +375,9 @@ export class CharacterPage extends LitElement {
               ({ key, name }) => html`
                 <div class="ability-box">
                   <div class="name">${name}</div>
-                  <div class="score">${this.character!.abilityScores[key]}</div>
+                  <div class="score">${data.abilityScores[key]}</div>
                   <div class="modifier">
-                    ${this.formatModifier(this.character!.abilityScores[key])}
+                    ${this.formatModifier(data.abilityScores[key])}
                   </div>
                 </div>
               `
@@ -346,10 +407,10 @@ export class CharacterPage extends LitElement {
 
         <div class="section list-section">
           <h2>Skills</h2>
-          ${this.character.skills.length > 0
+          ${data.skills.length > 0
             ? html`
                 <ul>
-                  ${this.character.skills.map((skill) => html`<li>${skill}</li>`)}
+                  ${data.skills.map((skill: string) => html`<li>${skill}</li>`)}
                 </ul>
               `
             : html`<p>No skills selected.</p>`}
@@ -357,10 +418,10 @@ export class CharacterPage extends LitElement {
 
         <div class="section list-section">
           <h2>Equipment</h2>
-          ${this.character.equipment.length > 0
+          ${data.equipment.length > 0
             ? html`
                 <ul>
-                  ${this.character.equipment.map((item) => html`<li>${item}</li>`)}
+                  ${data.equipment.map((item: string) => html`<li>${item}</li>`)}
                 </ul>
               `
             : html`<p>No equipment.</p>`}
@@ -368,10 +429,10 @@ export class CharacterPage extends LitElement {
 
         <div class="section list-section">
           <h2>Features</h2>
-          ${this.character.features.length > 0
+          ${data.features.length > 0
             ? html`
                 <ul>
-                  ${this.character.features.map((feature) => html`<li>${feature}</li>`)}
+                  ${data.features.map((feature: string) => html`<li>${feature}</li>`)}
                 </ul>
               `
             : html`<p>No features.</p>`}
