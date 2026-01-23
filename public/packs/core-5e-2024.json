@@ -1,0 +1,612 @@
+{
+  "manifest": {
+    "id": "core-5e-2024",
+    "name": "Core Rules (2024)",
+    "version": "1.0.0",
+    "schemaVersion": 1,
+    "description": "Core species, classes, backgrounds, spells, and equipment for D&D 5th Edition (2024)",
+    "author": "Character Wizard",
+    "edition": "5e-2024",
+    "tags": ["core", "official", "5e-2024"]
+  },
+  "content": {
+    "races": [
+      {
+        "id": "human-2024",
+        "name": "Human",
+        "description": "Found throughout the multiverse, humans are as varied as they are numerous. Their ambition and drive have made them one of the most widespread species across all realms.",
+        "abilityBonusChoice": {
+          "count": 3,
+          "amount": 1,
+          "options": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]
+        },
+        "size": "Medium",
+        "speed": 30,
+        "traits": ["Resourceful", "Skillful", "Versatile"],
+        "languages": ["Common"],
+        "languageChoice": 1,
+        "proficiencies": {
+          "skillChoices": {
+            "count": 1,
+            "options": ["Acrobatics", "Animal Handling", "Arcana", "Athletics", "Deception", "History", "Insight", "Intimidation", "Investigation", "Medicine", "Nature", "Perception", "Performance", "Persuasion", "Religion", "Sleight of Hand", "Stealth", "Survival"]
+          }
+        }
+      },
+      {
+        "id": "elf-2024",
+        "name": "Elf",
+        "description": "Created by the god Corellon, elves are blessed with long lives and a deep connection to magic, nature, and the Feywild. Their grace and longevity have shaped many worlds.",
+        "abilityBonusChoice": {
+          "count": 3,
+          "amount": 1,
+          "options": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"]
+        },
+        "size": "Medium",
+        "speed": 30,
+        "traits": ["Darkvision", "Elven Lineage", "Fey Ancestry", "Keen Senses", "Trance"],
+        "languages": ["Common", "Elvish"],
+        "proficiencies": {
+          "skills": ["Perception"]
+        },
+        "hasSubraces": true
+      }
+    ],
+    "subraces": [
+      {
+        "id": "high-elf-2024",
+        "name": "High Elf",
+        "parentRaceId": "elf-2024",
+        "description": "High elves descend from elves who remained in the Feywild the longest, gaining a deep connection to arcane magic.",
+        "traits": ["High Elf Lineage"],
+        "proficiencies": {
+          "weapons": ["longsword", "shortsword", "shortbow", "longbow"]
+        }
+      },
+      {
+        "id": "wood-elf-2024",
+        "name": "Wood Elf",
+        "parentRaceId": "elf-2024",
+        "description": "Wood elves descend from elves who left the Feywild early, forging a deep bond with the natural world.",
+        "traits": ["Wood Elf Lineage", "Fleet of Foot"],
+        "proficiencies": {
+          "weapons": ["longsword", "shortsword", "shortbow", "longbow"]
+        }
+      }
+    ],
+    "classes": [
+      {
+        "id": "fighter-2024",
+        "name": "Fighter",
+        "description": "Fighters rule many battlefields. Questing knights, royal champions, elite soldiers, and hardened mercenaries—all share an unparalleled prowess with weapons and armor.",
+        "hitDie": 10,
+        "primaryAbility": ["strength", "dexterity"],
+        "savingThrows": ["strength", "constitution"],
+        "proficiencies": {
+          "armor": ["light", "medium", "heavy", "shields"],
+          "weapons": ["simple", "martial"]
+        },
+        "skillChoices": {
+          "count": 2,
+          "options": ["Acrobatics", "Animal Handling", "Athletics", "History", "Insight", "Intimidation", "Perception", "Persuasion", "Survival"]
+        },
+        "features": [
+          {
+            "id": "fighting-style-fighter-2024",
+            "name": "Fighting Style",
+            "level": 1,
+            "description": "You have honed your martial techniques. You gain a Fighting Style feat of your choice. Whenever you gain a Fighter level, you can replace this feat with another Fighting Style feat."
+          },
+          {
+            "id": "second-wind-2024",
+            "name": "Second Wind",
+            "level": 1,
+            "description": "You have a limited well of physical and mental stamina. As a Bonus Action, you can use it to regain Hit Points equal to 1d10 plus your Fighter level. You can use this feature twice. You regain one expended use when you finish a Short Rest, and you regain all expended uses when you finish a Long Rest."
+          },
+          {
+            "id": "weapon-mastery-2024",
+            "name": "Weapon Mastery",
+            "level": 1,
+            "description": "Your training with weapons allows you to use the mastery properties of three kinds of Simple or Martial weapons of your choice. Whenever you finish a Long Rest, you can practice weapon drills and change one of those weapon choices."
+          },
+          {
+            "id": "action-surge-2024",
+            "name": "Action Surge",
+            "level": 2,
+            "description": "You can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action. Once you use this feature, you can't do so again until you finish a Short or Long Rest."
+          },
+          {
+            "id": "tactical-mind-2024",
+            "name": "Tactical Mind",
+            "level": 2,
+            "description": "You have a mind for tactics on and off the battlefield. When you fail an ability check, you can expend a use of Second Wind to push yourself toward success. Roll 1d10 and add the number rolled to the ability check, potentially turning it into a success."
+          }
+        ],
+        "subclassLevel": 3,
+        "subclassTitle": "Fighter Subclass"
+      },
+      {
+        "id": "wizard-2024",
+        "name": "Wizard",
+        "description": "Wizards are defined by their exhaustive study of magic's inner workings. Drawing on the subtle weave of magic that permeates the multiverse, Wizards cast spells of explosive fire, crackling lightning, subtle deception, and spectacular transformations.",
+        "hitDie": 6,
+        "primaryAbility": ["intelligence"],
+        "savingThrows": ["intelligence", "wisdom"],
+        "proficiencies": {
+          "weapons": ["simple"]
+        },
+        "skillChoices": {
+          "count": 2,
+          "options": ["Arcana", "History", "Insight", "Investigation", "Medicine", "Nature", "Religion"]
+        },
+        "spellcasting": {
+          "ability": "intelligence",
+          "type": "full",
+          "known": false,
+          "ritual": true,
+          "cantripsKnown": [3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+        },
+        "features": [
+          {
+            "id": "spellcasting-wizard-2024",
+            "name": "Spellcasting",
+            "level": 1,
+            "description": "As a student of arcane magic, you have learned to cast spells. Your spells are part of your vast repertoire of magic that you record in your Spellbook."
+          },
+          {
+            "id": "ritual-adept-2024",
+            "name": "Ritual Adept",
+            "level": 1,
+            "description": "You can cast any spell as a Ritual if that spell has the Ritual tag and the spell is in your Spellbook. You needn't have the spell prepared, but you must read from the book to cast a spell in this way."
+          },
+          {
+            "id": "arcane-recovery-2024",
+            "name": "Arcane Recovery",
+            "level": 1,
+            "description": "You can regain some of your magical energy by studying your Spellbook. When you finish a Short Rest, you can choose expended spell slots to recover. The spell slots can have a combined level equal to no more than half your Wizard level (round up), and none of the slots can be 6th level or higher. Once you use this feature, you can't do so again until you finish a Long Rest."
+          },
+          {
+            "id": "scholar-2024",
+            "name": "Scholar",
+            "level": 2,
+            "description": "While studying magic, you also specialized in another field of study. Choose one of the following skills: Arcana, History, Investigation, Medicine, Nature, or Religion. You have Expertise in the chosen skill."
+          }
+        ],
+        "subclassLevel": 3,
+        "subclassTitle": "Wizard Subclass"
+      }
+    ],
+    "backgrounds": [
+      {
+        "id": "soldier-2024",
+        "name": "Soldier",
+        "description": "You began training for war as soon as you reached adulthood and carry those skills with you still. Your service may have been for a formal army, a mercenary company, or a local militia.",
+        "skillProficiencies": ["Athletics", "Intimidation"],
+        "toolProficiencies": ["Gaming Set"],
+        "equipment": ["Spear", "Shortbow", "20 Arrows", "Quiver", "Gaming Set", "Healer's Kit", "Traveler's Clothes", "14 GP"],
+        "feature": {
+          "name": "Savage Attacker",
+          "description": "You gain the Savage Attacker feat. When you take damage, you can roll a d4 and reduce the damage by the amount rolled (minimum of 0)."
+        },
+        "suggestedCharacteristics": {
+          "personalityTraits": [
+            "I'm always polite and respectful.",
+            "I'm haunted by memories of war.",
+            "I face problems head-on.",
+            "I enjoy being strong and like breaking things."
+          ],
+          "ideals": [
+            "Greater Good. Our lot is to lay down our lives in defense of others.",
+            "Responsibility. I do what I must and obey just authority.",
+            "Independence. When people follow orders blindly, they embrace tyranny."
+          ],
+          "bonds": [
+            "I would still lay down my life for the people I served with.",
+            "Someone saved my life on the battlefield. I will repay that debt.",
+            "My honor is my life."
+          ],
+          "flaws": [
+            "I obey the law, even if the law causes misery.",
+            "I made a terrible mistake in battle that cost many lives—and I would do anything to keep that mistake secret.",
+            "My hatred of my enemies is blinding and unreasoning."
+          ]
+        }
+      },
+      {
+        "id": "sage-2024",
+        "name": "Sage",
+        "description": "You spent your formative years traveling between manors and monasteries, learning the lore of the multiverse. You might have met scholars from throughout the planes.",
+        "skillProficiencies": ["Arcana", "History"],
+        "languages": 2,
+        "equipment": ["Quarterstaff", "Calligrapher's Supplies", "Book (History)", "Parchment (8 sheets)", "Robe", "8 GP"],
+        "feature": {
+          "name": "Magic Initiate (Wizard)",
+          "description": "You gain the Magic Initiate feat (Wizard). You learn two cantrips and one 1st-level spell from the Wizard spell list."
+        },
+        "suggestedCharacteristics": {
+          "personalityTraits": [
+            "I use polysyllabic words that convey the impression of erudition.",
+            "I've read every book in the world's greatest libraries—or I like to boast that I have.",
+            "I'm used to helping out those who aren't as smart as I am, and I patiently explain anything and everything to others.",
+            "There's nothing I like more than a good mystery."
+          ],
+          "ideals": [
+            "Knowledge. The path to power and self-improvement is through knowledge.",
+            "Beauty. What is beautiful points us beyond itself toward what is true.",
+            "Logic. Emotions must not cloud our logical thinking."
+          ],
+          "bonds": [
+            "It is my duty to protect my students.",
+            "I have an ancient text that holds terrible secrets that must not fall into the wrong hands.",
+            "I work to preserve a library, university, scriptorium, or monastery."
+          ],
+          "flaws": [
+            "I am easily distracted by the promise of information.",
+            "Most people scream and run when they see a demon. I stop and take notes on its anatomy.",
+            "Unlocking an ancient mystery is worth the price of a civilization."
+          ]
+        }
+      }
+    ],
+    "spells": [
+      {
+        "id": "fire-bolt-2024",
+        "name": "Fire Bolt",
+        "level": 0,
+        "school": "evocation",
+        "castingTime": "1 action",
+        "range": "120 feet",
+        "components": {
+          "verbal": true,
+          "somatic": true
+        },
+        "duration": "Instantaneous",
+        "description": "You hurl a mote of fire at a creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 Fire damage. A flammable object hit by this spell starts burning if it isn't being worn or carried. This spell's damage increases by 1d10 when you reach certain levels: 5th level (2d10), 11th level (3d10), and 17th level (4d10).",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "mage-hand-2024",
+        "name": "Mage Hand",
+        "level": 0,
+        "school": "conjuration",
+        "castingTime": "1 action",
+        "range": "30 feet",
+        "components": {
+          "verbal": true,
+          "somatic": true
+        },
+        "duration": "1 minute",
+        "description": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration. The hand vanishes if it is ever more than 30 feet away from you or if you cast this spell again. You can use the hand to manipulate an object, open an unlocked door or container, stow or retrieve an item from an open container, or pour out a vial's contents. You can move the hand up to 30 feet each time you use it. The hand can't attack, activate magic items, or carry more than 10 pounds.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "light-2024",
+        "name": "Light",
+        "level": 0,
+        "school": "evocation",
+        "castingTime": "1 action",
+        "range": "Touch",
+        "components": {
+          "verbal": true,
+          "material": "a firefly or phosphorescent moss"
+        },
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. Until the spell ends, the object sheds Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. The light can be colored as you like. Covering the object with something opaque blocks the light. The spell ends if you cast it again.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "magic-missile-2024",
+        "name": "Magic Missile",
+        "level": 1,
+        "school": "evocation",
+        "castingTime": "1 action",
+        "range": "120 feet",
+        "components": {
+          "verbal": true,
+          "somatic": true
+        },
+        "duration": "Instantaneous",
+        "description": "You create three glowing darts of magical force. Each dart strikes a creature of your choice that you can see within range. A dart deals 1d4 + 1 Force damage to its target. The darts all strike simultaneously, and you can direct them to hit one creature or several.",
+        "higherLevels": "When you cast this spell using a spell slot of 2nd level or higher, the spell creates one more dart for each slot level above 1st.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "shield-2024",
+        "name": "Shield",
+        "level": 1,
+        "school": "abjuration",
+        "castingTime": "1 reaction, which you take when you are hit by an attack roll or targeted by the Magic Missile spell",
+        "range": "Self",
+        "components": {
+          "verbal": true,
+          "somatic": true
+        },
+        "duration": "1 round",
+        "description": "An invisible barrier of magical force protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from Magic Missile.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "sleep-2024",
+        "name": "Sleep",
+        "level": 1,
+        "school": "enchantment",
+        "castingTime": "1 action",
+        "range": "60 feet",
+        "components": {
+          "verbal": true,
+          "somatic": true,
+          "material": "a pinch of fine sand, rose petals, or a cricket"
+        },
+        "duration": "Concentration, up to 1 minute",
+        "concentration": true,
+        "description": "Each creature of your choice in a 5-foot-radius Sphere centered on a point within range must succeed on a Wisdom saving throw or have the Incapacitated condition until the spell ends, the sleeper takes damage, or someone uses an action to shake or slap the sleeper awake.",
+        "higherLevels": "When you cast this spell using a spell slot of 2nd level or higher, the Sphere's radius increases by 5 feet for each slot level above 1st.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "detect-magic-2024",
+        "name": "Detect Magic",
+        "level": 1,
+        "school": "divination",
+        "castingTime": "1 action",
+        "range": "Self (30-foot radius)",
+        "components": {
+          "verbal": true,
+          "somatic": true
+        },
+        "duration": "Concentration, up to 10 minutes",
+        "concentration": true,
+        "ritual": true,
+        "description": "For the duration, you sense the presence of magical effects within 30 feet of yourself. If you sense such effects, you can take the Magic action to see a faint aura around any visible creature or object in the area that bears the magic, and if the magic was created by a spell, you learn the spell's school of magic.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "mage-armor-2024",
+        "name": "Mage Armor",
+        "level": 1,
+        "school": "abjuration",
+        "castingTime": "1 action",
+        "range": "Touch",
+        "components": {
+          "verbal": true,
+          "somatic": true,
+          "material": "a piece of cured leather"
+        },
+        "duration": "8 hours",
+        "description": "You touch a willing creature who isn't wearing armor. Until the spell ends, the target's base AC becomes 13 + its Dexterity modifier. The spell ends early if the target dons armor or if you dismiss the spell as a Magic action.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "burning-hands-2024",
+        "name": "Burning Hands",
+        "level": 1,
+        "school": "evocation",
+        "castingTime": "1 action",
+        "range": "Self (15-foot cone)",
+        "components": {
+          "verbal": true,
+          "somatic": true
+        },
+        "duration": "Instantaneous",
+        "description": "A thin sheet of flames shoots forth from you. Each creature in a 15-foot Cone makes a Dexterity saving throw, taking 3d6 Fire damage on a failed save or half as much damage on a successful one. Flammable objects in the Cone that aren't being worn or carried start burning.",
+        "higherLevels": "When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d6 for each slot level above 1st.",
+        "classes": ["wizard"]
+      },
+      {
+        "id": "thunderwave-2024",
+        "name": "Thunderwave",
+        "level": 1,
+        "school": "evocation",
+        "castingTime": "1 action",
+        "range": "Self (15-foot cube)",
+        "components": {
+          "verbal": true,
+          "somatic": true
+        },
+        "duration": "Instantaneous",
+        "description": "You unleash a wave of thunderous force. Each creature in a 15-foot Cube originating from you makes a Constitution saving throw. On a failed save, a creature takes 2d8 Thunder damage and is pushed 10 feet away from you. On a successful save, a creature takes half as much damage only. Unsecured objects are automatically pushed 10 feet away from you by the spell.",
+        "higherLevels": "When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d8 for each slot level above 1st.",
+        "classes": ["wizard"]
+      }
+    ],
+    "equipment": [
+      {
+        "id": "longsword-2024",
+        "name": "Longsword",
+        "type": "weapon",
+        "cost": { "amount": 15, "unit": "gp" },
+        "weight": 3,
+        "properties": ["versatile", "sap"],
+        "weapon": {
+          "damage": "1d8",
+          "damageType": "slashing",
+          "versatileDamage": "1d10"
+        },
+        "description": "Mastery: Sap. If you hit a creature with this weapon, that creature has Disadvantage on its next attack roll before the start of your next turn."
+      },
+      {
+        "id": "shortsword-2024",
+        "name": "Shortsword",
+        "type": "weapon",
+        "cost": { "amount": 10, "unit": "gp" },
+        "weight": 2,
+        "properties": ["finesse", "light", "vex"],
+        "weapon": {
+          "damage": "1d6",
+          "damageType": "piercing"
+        },
+        "description": "Mastery: Vex. If you hit a creature with this weapon and deal damage, you have Advantage on your next attack roll against that creature before the end of your next turn."
+      },
+      {
+        "id": "dagger-2024",
+        "name": "Dagger",
+        "type": "weapon",
+        "cost": { "amount": 2, "unit": "gp" },
+        "weight": 1,
+        "properties": ["finesse", "light", "thrown", "nick"],
+        "weapon": {
+          "damage": "1d4",
+          "damageType": "piercing",
+          "range": { "normal": 20, "long": 60 }
+        },
+        "description": "Mastery: Nick. When you make the extra attack of the Light property, you can make it as part of the Attack action instead of as a Bonus Action."
+      },
+      {
+        "id": "quarterstaff-2024",
+        "name": "Quarterstaff",
+        "type": "weapon",
+        "cost": { "amount": 2, "unit": "sp" },
+        "weight": 4,
+        "properties": ["versatile", "topple"],
+        "weapon": {
+          "damage": "1d6",
+          "damageType": "bludgeoning",
+          "versatileDamage": "1d8"
+        },
+        "description": "Mastery: Topple. If you hit a creature with this weapon, you can force the creature to make a Constitution saving throw. On a failed save, the creature has the Prone condition."
+      },
+      {
+        "id": "longbow-2024",
+        "name": "Longbow",
+        "type": "weapon",
+        "cost": { "amount": 50, "unit": "gp" },
+        "weight": 2,
+        "properties": ["ammunition", "heavy", "two-handed", "slow"],
+        "weapon": {
+          "damage": "1d8",
+          "damageType": "piercing",
+          "range": { "normal": 150, "long": 600 }
+        },
+        "description": "Mastery: Slow. If you hit a creature with this weapon and deal damage, you can reduce its Speed by 10 feet until the start of your next turn."
+      },
+      {
+        "id": "chain-mail-2024",
+        "name": "Chain Mail",
+        "type": "armor",
+        "cost": { "amount": 75, "unit": "gp" },
+        "weight": 55,
+        "armor": {
+          "baseAC": 16,
+          "armorType": "heavy",
+          "maxDexBonus": 0,
+          "stealthDisadvantage": true,
+          "strengthRequired": 13
+        }
+      },
+      {
+        "id": "leather-armor-2024",
+        "name": "Leather Armor",
+        "type": "armor",
+        "cost": { "amount": 10, "unit": "gp" },
+        "weight": 10,
+        "armor": {
+          "baseAC": 11,
+          "armorType": "light"
+        }
+      },
+      {
+        "id": "shield-2024-equip",
+        "name": "Shield",
+        "type": "shield",
+        "cost": { "amount": 10, "unit": "gp" },
+        "weight": 6,
+        "armor": {
+          "baseAC": 2,
+          "armorType": "shield"
+        }
+      },
+      {
+        "id": "backpack-2024",
+        "name": "Backpack",
+        "type": "gear",
+        "cost": { "amount": 2, "unit": "gp" },
+        "weight": 5,
+        "description": "A backpack can hold up to 30 pounds of gear."
+      },
+      {
+        "id": "rope-2024",
+        "name": "Rope (50 feet)",
+        "type": "gear",
+        "cost": { "amount": 1, "unit": "gp" },
+        "weight": 10,
+        "description": "As an action, you can tie a knot with 50 feet of rope."
+      },
+      {
+        "id": "torch-2024",
+        "name": "Torch",
+        "type": "gear",
+        "cost": { "amount": 1, "unit": "cp" },
+        "weight": 1,
+        "description": "A Torch burns for 1 hour, shedding Bright Light in a 20-foot radius and Dim Light for an additional 20 feet."
+      },
+      {
+        "id": "rations-2024",
+        "name": "Rations (1 day)",
+        "type": "gear",
+        "cost": { "amount": 5, "unit": "sp" },
+        "weight": 2,
+        "description": "Dried food suitable for travel."
+      },
+      {
+        "id": "spellbook-2024",
+        "name": "Spellbook",
+        "type": "gear",
+        "cost": { "amount": 50, "unit": "gp" },
+        "weight": 3,
+        "description": "Essential for Wizards, this leather-bound book has 100 blank vellum pages."
+      },
+      {
+        "id": "component-pouch-2024",
+        "name": "Component Pouch",
+        "type": "gear",
+        "cost": { "amount": 25, "unit": "gp" },
+        "weight": 2,
+        "description": "A Component Pouch is a small belt pouch that contains all the material components you need to cast your spells, except for components that have a stated cost."
+      },
+      {
+        "id": "arcane-focus-2024",
+        "name": "Arcane Focus",
+        "type": "gear",
+        "cost": { "amount": 10, "unit": "gp" },
+        "weight": 1,
+        "description": "An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or engraved to channel arcane magic."
+      }
+    ],
+    "traits": [
+      {
+        "id": "darkvision-2024",
+        "name": "Darkvision",
+        "description": "You have Darkvision with a range of 60 feet."
+      },
+      {
+        "id": "fey-ancestry-2024",
+        "name": "Fey Ancestry",
+        "description": "You have Advantage on saving throws you make to avoid or end the Charmed condition."
+      },
+      {
+        "id": "trance-2024",
+        "name": "Trance",
+        "description": "You don't need to sleep, and magic can't put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
+      },
+      {
+        "id": "keen-senses-2024",
+        "name": "Keen Senses",
+        "description": "You have proficiency in the Perception skill."
+      },
+      {
+        "id": "resourceful-2024",
+        "name": "Resourceful",
+        "description": "You gain Heroic Inspiration whenever you finish a Long Rest."
+      },
+      {
+        "id": "skillful-2024",
+        "name": "Skillful",
+        "description": "You gain proficiency in one skill of your choice."
+      },
+      {
+        "id": "versatile-2024",
+        "name": "Versatile",
+        "description": "You gain an Origin feat of your choice."
+      }
+    ]
+  }
+}
