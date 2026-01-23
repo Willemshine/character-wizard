@@ -66,6 +66,8 @@ export interface AbilityScoreSelection {
   baseScores: AbilityScores;
   racialBonuses: Partial<AbilityScores>;
   miscBonuses: Partial<AbilityScores>;
+  /** Seed for reproducible dice rolls (used by roll methods) */
+  rollSeed?: number;
 }
 
 // =============================================================================

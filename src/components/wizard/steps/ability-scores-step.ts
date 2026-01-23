@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { stepStyles } from '../step-styles.ts';
 import type { WizardFormState, StepValidationResult } from '../wizard-types.ts';
 import {
@@ -17,6 +17,37 @@ const POINT_BUY_COSTS: Record<number, number> = {
   8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9,
 };
 const POINT_BUY_TOTAL = 27;
+
+/**
+ * Seeded random number generator using Mulberry32 algorithm
+ * Returns a function that generates numbers between 0 and 1
+ */
+function createSeededRng(seed: number): () => number {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Roll dice using a seeded RNG
+ */
+function rollDiceSeeded(rng: () => number, count: number, sides: number, dropLowest: number = 0): { rolls: number[]; total: number } {
+  const rolls = Array.from({ length: count }, () => Math.floor(rng() * sides) + 1);
+  const sortedRolls = [...rolls].sort((a, b) => b - a);
+  const keptRolls = sortedRolls.slice(0, count - dropLowest);
+  const total = keptRolls.reduce((a, b) => a + b, 0);
+  return { rolls, total };
+}
+
+/**
+ * Generate a random seed
+ */
+function generateSeed(): number {
+  return Math.floor(Math.random() * 2147483647) + 1;
+}
 
 @customElement('ability-scores-step')
 export class AbilityScoresStep extends LitElement {
@@ -111,9 +142,52 @@ export class AbilityScoresStep extends LitElement {
       color: var(--color-danger);
     }
 
+    .roll-section {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .roll-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .seed-input-group {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .seed-input-group label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .seed-input {
+      width: 120px;
+      padding: var(--spacing-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-md);
+      font-family: monospace;
+      text-align: center;
+    }
+
+    .seed-input:focus {
+      border-color: var(--color-primary);
+      outline: none;
+    }
+
     .roll-button {
-      display: block;
-      margin: var(--spacing-lg) auto;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
       padding: var(--spacing-md) var(--spacing-xl);
       background: var(--color-primary);
       color: white;
@@ -121,10 +195,37 @@ export class AbilityScoresStep extends LitElement {
       border-radius: var(--radius-md);
       font-size: var(--font-size-md);
       cursor: pointer;
+      transition: background-color 0.2s;
     }
 
     .roll-button:hover {
       background: var(--color-primary-dark);
+    }
+
+    .roll-button.secondary {
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+    }
+
+    .roll-button.secondary:hover {
+      background: var(--color-background);
+      border-color: var(--color-primary);
+    }
+
+    .dice-rolls {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-xs);
+    }
+
+    .dice-rolls .dropped {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .dice-icon {
+      font-size: 1.2em;
     }
 
     .total-row {
@@ -170,6 +271,16 @@ export class AbilityScoresStep extends LitElement {
   `];
 
   @property({ type: Object }) formState!: WizardFormState;
+
+  /** Track individual dice rolls for display */
+  @state() private diceRolls: Record<AbilityName, number[]> = {
+    strength: [],
+    dexterity: [],
+    constitution: [],
+    intelligence: [],
+    wisdom: [],
+    charisma: [],
+  };
 
   private dispatchUpdate(abilityScores: AbilityScoreSelection) {
     this.dispatchEvent(new CustomEvent('selection-update', {
@@ -247,31 +358,50 @@ export class AbilityScoresStep extends LitElement {
     });
   }
 
-  private handleRollScores() {
+  private handleRollScores(newSeed?: number) {
     const current = this.formState.character.selections.abilityScores;
     const method = current.method;
-
-    const rollDice = (count: number, sides: number, dropLowest: number = 0): number => {
-      const rolls = Array.from({ length: count }, () => Math.floor(Math.random() * sides) + 1);
-      rolls.sort((a, b) => b - a);
-      return rolls.slice(0, count - dropLowest).reduce((a, b) => a + b, 0);
-    };
+    const seed = newSeed ?? current.rollSeed ?? generateSeed();
+    const rng = createSeededRng(seed);
 
     const newScores: AbilityScores = {} as AbilityScores;
+    const newDiceRolls: Record<AbilityName, number[]> = {} as Record<AbilityName, number[]>;
+
     for (const ability of ABILITY_NAMES) {
       if (method === 'roll-4d6-drop-lowest') {
-        newScores[ability] = rollDice(4, 6, 1);
+        const result = rollDiceSeeded(rng, 4, 6, 1);
+        newScores[ability] = result.total;
+        newDiceRolls[ability] = result.rolls;
       } else if (method === 'roll-3d6') {
-        newScores[ability] = rollDice(3, 6, 0);
+        const result = rollDiceSeeded(rng, 3, 6, 0);
+        newScores[ability] = result.total;
+        newDiceRolls[ability] = result.rolls;
       } else {
         newScores[ability] = current.baseScores[ability];
+        newDiceRolls[ability] = [];
       }
     }
+
+    this.diceRolls = newDiceRolls;
 
     this.dispatchUpdate({
       ...current,
       baseScores: newScores,
+      rollSeed: seed,
     });
+  }
+
+  private handleReroll() {
+    const newSeed = generateSeed();
+    this.handleRollScores(newSeed);
+  }
+
+  private handleSeedChange(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const seed = parseInt(input.value, 10);
+    if (!isNaN(seed) && seed > 0) {
+      this.handleRollScores(seed);
+    }
   }
 
   private getRacialBonuses(): Partial<AbilityScores> {
@@ -341,6 +471,8 @@ export class AbilityScoresStep extends LitElement {
     const totalScore = baseScore + bonus;
     const modifier = calculateModifier(totalScore);
     const modifierStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
+    const isRollMethod = abilityScores.method === 'roll-4d6-drop-lowest' || abilityScores.method === 'roll-3d6';
+    const diceRolls = this.diceRolls[ability] || [];
 
     return html`
       <div class="ability-card">
@@ -373,13 +505,39 @@ export class AbilityScoresStep extends LitElement {
             @input=${(e: Event) => this.handleScoreChange(ability, parseInt((e.target as HTMLInputElement).value) || 8)}
           />
         `}
+        ${isRollMethod && diceRolls.length > 0 ? html`
+          <div class="dice-rolls">
+            ${this.renderDiceRolls(diceRolls, abilityScores.method === 'roll-4d6-drop-lowest')}
+          </div>
+        ` : ''}
         ${bonus > 0 ? html`
           <div class="bonuses">+${bonus} racial</div>
         ` : ''}
         <div class="modifier ${modifier < 0 ? 'negative' : ''}">
           ${modifierStr}
         </div>
+        ${bonus > 0 ? html`
+          <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+            Total: ${totalScore}
+          </div>
+        ` : ''}
       </div>
+    `;
+  }
+
+  private renderDiceRolls(rolls: number[], dropLowest: boolean) {
+    if (rolls.length === 0) return '';
+
+    const sortedRolls = [...rolls].sort((a, b) => b - a);
+    const minRoll = Math.min(...rolls);
+    let droppedOne = false;
+
+    return html`
+      [${sortedRolls.map((roll, index) => {
+        const isDropped = dropLowest && roll === minRoll && !droppedOne && index === sortedRolls.length - 1;
+        if (isDropped) droppedOne = true;
+        return html`<span class="${isDropped ? 'dropped' : ''}">${roll}</span>${index < sortedRolls.length - 1 ? ', ' : ''}`;
+      })}]
     `;
   }
 
@@ -406,9 +564,39 @@ export class AbilityScoresStep extends LitElement {
         ` : ''}
 
         ${isRollMethod ? html`
-          <button class="roll-button" @click=${this.handleRollScores}>
-            Roll New Scores
-          </button>
+          <div class="roll-section">
+            <div class="roll-controls">
+              <div class="seed-input-group">
+                <label for="seed-input">Seed:</label>
+                <input
+                  id="seed-input"
+                  type="number"
+                  class="seed-input"
+                  .value=${String(abilityScores.rollSeed ?? '')}
+                  placeholder="Random"
+                  @change=${this.handleSeedChange}
+                />
+              </div>
+              <button class="roll-button" @click=${() => this.handleRollScores(abilityScores.rollSeed)}>
+                <span class="dice-icon">🎲</span>
+                Roll with Seed
+              </button>
+              <button class="roll-button secondary" @click=${this.handleReroll}>
+                <span class="dice-icon">🔄</span>
+                Reroll (New Seed)
+              </button>
+            </div>
+            ${abilityScores.rollSeed ? html`
+              <p style="text-align: center; margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                Using seed: <code>${abilityScores.rollSeed}</code>
+                — share this seed to reproduce these exact rolls
+              </p>
+            ` : html`
+              <p style="text-align: center; margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                Click a roll button to generate ability scores
+              </p>
+            `}
+          </div>
         ` : ''}
 
         <div class="ability-grid">
